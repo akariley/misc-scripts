@@ -1,0 +1,31 @@
+## Backups
+#
+0 */3 * * * ./rust-scripts/rs-backup.sh --full > /dev/null 2>&1
+
+## Maintenance tasks
+#
+# This cron find logs older than 28 days and deletes them.
+0 13 * * * ~/rust/daily-tasks.sh
+
+# Convert the lootlogs into something readable
+*/10 * * * * /usr/bin/dos2unix -q ~/rust/serverfiles/oxide/logs/PlayerLootLogs/*.txt 2>&1 > /dev/null
+
+## Monitoring scripts
+#
+*/5 * * * * if ! [[ -e ~/rust/.disable_monitor ]]; then ~/rust/rustserver monitor > /dev/null 2>&1; fi
+#*/5 * * * * if ! [[ -e ~/rust/.disable_monitor ]]; then ~/rust/rustserver monitor; fi
+
+## Lootlogs cleanup.
+#
+10 0 * * * /home/rust-pve/rust/lootlogs-maint.sh
+
+## Wipes
+# Force wipe, start of month.
+5 13 * * 4 if [[ $(date +\%-d) -le 7 ]]; then ./rust-scripts/rs-wipe-script.sh --force-wipe --new-seed random --restart-server 3600 forced wipe restart @@ --wipe-blueprints odd --do-backup rustserver; fi
+
+# Weekly restart.
+1 13 * * 4 if [[ $(date +\%-d) -gt 7 ]]; then ./rust-scripts/rs-wipe-script.sh --restart-server 3600 weekly server restart @@ --update-rust --update-mods --update-lgsm --do-backup rustserver; fi
+
+## Uncomment this to run a restart/update/backup/NONwipe for the day.
+# At the scheduled time, will restart the server and update in 5 minutes.
+#1 13 * * * if [[ $(date +\%-d) -gt 7 ]]; then ./rust-scripts/rs-wipe-script.sh --restart-server 3600 restarting due to rust update @@ --update-rust --update-mods --update-lgsm --do-backup rustserver; fi

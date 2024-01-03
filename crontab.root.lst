@@ -1,0 +1,4 @@
+#0 0 1,15 * * /usr/bin/certbot -n renew
+0 0 1,15 * * /root/certbot-filebrowser.sh
+20 13 * * * find /game-backups/ -type f -mtime +30  2>/dev/null -delete
+21 13 * * * find /game-backups/ -type d -empty 2>/dev/null -delete
