@@ -1,7 +1,10 @@
 #!/bin/bash
 
-webhookUrlTesting="https://discord.com/api/webhooks/t0k3n?thread_id=42069101" #testing
-webhookUrl="https://discord.com/api/webhooks/867530911037" #admins
+webhookUrlTesting="" #testing
+webhookUrlAdmins="" #admins
+webhookUrlPVE1="" #pve1-relay
+webhookUrlPVE2="" #pve2-relay
+webhookUrlServerStatus="" #server-status
 params="$1"
 discordUsername="Server alerts"
 discordContentJson='"content": "'${params}'"'
@@ -14,7 +17,16 @@ payload="{${discordUsernameJson},${discordContentJson},${discordAvatarJson}}"
 
 if [[ "$1" =~ PVE[1-2] ]]
 then
-  /usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrl}"
-else
+  # it's related to the server so send to #admins and the relay.
+  #/usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrlAdmins}"
+  if [[ "$1" =~ PVE1 ]]
+  then
+    /usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrlPVE1}"
+  else
+    /usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrlPVE2}"
+  fi # end servername check
+  /usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrlServerStatus}"
+  /usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrlAdmins}"
+else  # Test message.
   /usr/bin/curl -H "${curlHeaders}" -X POST -d "${payload}" "${webhookUrlTesting}"
 fi
